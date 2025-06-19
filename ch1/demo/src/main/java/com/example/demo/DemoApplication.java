@@ -27,7 +27,7 @@ public class DemoApplication {
     public static void main(String[] args) {
 
         ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
-        AnnotationConfigApplicationContext acaContext = (AnnotationConfigApplicationContext) context;
+//        AnnotationConfigApplicationContext acaContext = (AnnotationConfigApplicationContext) context;
 //        printBeanDefinitions(acaContext);
 //        printBeanObjects(acaContext);
 //        printEnvironment(acaContext);
@@ -38,7 +38,7 @@ public class DemoApplication {
 //            throw new RuntimeException(e);
 //        }
 //        printClassPaths();
-        testMessageResource(acaContext);
+//        testMessageResource(acaContext);
     }
 
     /**
