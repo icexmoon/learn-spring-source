@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,11 +17,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.ControllerAdviceBean;
 import org.springframework.web.method.HandlerMethod;
@@ -43,36 +40,41 @@ import java.util.stream.Collectors;
  * @Date 2025/7/2 下午6:11
  * @Version 1.0
  */
-public class ResponseBodyAdviceTests {
+public class ResponseBodyAdviceTests2 {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class User{
+    private static class User {
         private String name;
         private int age;
     }
 
-    @Controller
     @RequestMapping("/test")
+    @RestController
     private static class TestController {
-        @GetMapping("/hello")
-        @ResponseBody
+        @GetMapping("/tom")
         public User hello() {
             return new User("Tom", 20);
         }
     }
 
     @ControllerAdvice
-    private static class MyControllerAdvice implements ResponseBodyAdvice<Object>{
+    private static class MyControllerAdvice implements ResponseBodyAdvice<Object> {
 
         @Override
         public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-            return true;
+            // 控制器方法上是否有 @ResponseBody 注解
+            if (returnType.getMethodAnnotation(ResponseBody.class) != null ||
+                    // 检查类上是否有 @ResponseBody 注解
+                    AnnotationUtils.findAnnotation(returnType.getContainingClass(), ResponseBody.class) != null) {
+                return true;
+            }
+            return false;
         }
 
         @Override
         public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-            if (body instanceof Result){
+            if (body instanceof Result) {
                 return body;
             }
             return Result.success(body);
@@ -89,6 +91,10 @@ public class ResponseBodyAdviceTests {
     public void testResponseBodyAdvice() throws Exception {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(WebConfig.class);
         HandlerMethod handlerMethod = new HandlerMethod(context.getBean(TestController.class), TestController.class.getMethod("hello"));
+        testHandlerMethod(handlerMethod, context);
+    }
+
+    private static void testHandlerMethod(HandlerMethod handlerMethod, AnnotationConfigApplicationContext context) throws Exception {
         ServletInvocableHandlerMethod invocableHandlerMethod = new ServletInvocableHandlerMethod(handlerMethod);
         invocableHandlerMethod.setDataBinderFactory(new ServletRequestDataBinderFactory(Collections.emptyList(), null));
         invocableHandlerMethod.setParameterNameDiscoverer(new DefaultParameterNameDiscoverer());
