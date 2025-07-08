@@ -1,0 +1,6 @@
+com.example.demo.ImportTests3$MyImportSelector=\
+  com.example.demo.ImportTests3$OuterConfig1,\
+  com.example.demo.ImportTests3$OuterConfig2
+com.example.demo.ImportTests4$MyImportSelector=\
+  com.example.demo.ImportTests4$OuterConfig1,\
+  com.example.demo.ImportTests4$OuterConfig2
