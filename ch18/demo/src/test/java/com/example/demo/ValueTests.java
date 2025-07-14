@@ -31,10 +31,6 @@ import java.util.Optional;
  * @Version 1.0
  */
 public class ValueTests {
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface MyConfigurationProperties{}
-
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface MyValue{
@@ -48,7 +44,6 @@ public class ValueTests {
         private int age;
     }
 
-    @MyConfigurationProperties
     @Configuration(proxyBeanMethods = false)
     @ToString
     @Getter
@@ -81,7 +76,7 @@ public class ValueTests {
         @SneakyThrows
         @Override
         public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-            Optional<MyConfigurationProperties> annotation = AnnotationUtils.findAnnotation(bean.getClass(), MyConfigurationProperties.class);
+            Optional<Component> annotation = AnnotationUtils.findAnnotation(bean.getClass(), Component.class);
             if (annotation.isPresent()) {
                 // 存在自定义 @MyConfigurationProperties 注解
                 // 处理使用了 @MyValue 的属性
