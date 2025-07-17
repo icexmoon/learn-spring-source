@@ -44,7 +44,7 @@ public class EventTests6 {
         }
 
         @Bean
-        public ApplicationEventMulticaster applicationEventMulticaster(ApplicationContext applicationContext) {
+        public ApplicationEventMulticaster applicationEventMulticaster(ApplicationContext applicationContext, ThreadPoolTaskExecutor taskExecutor) {
             return new AbsMyApplicationEventMulticaster() {
                 private final List<GenericApplicationListener> listeners = new ArrayList<>();
 
@@ -62,7 +62,7 @@ public class EventTests6 {
                         public boolean supportsEventType(ResolvableType eventType) {
                             Class<? extends ApplicationListener> clazz = listener.getClass();
                             ResolvableType[] interfaces = ResolvableType.forClass(clazz).getInterfaces();
-                            if (interfaces.length == 0){
+                            if (interfaces.length == 0) {
                                 return false;
                             }
                             ResolvableType generic = interfaces[0].getGeneric();
@@ -76,7 +76,7 @@ public class EventTests6 {
                 public void multicastEvent(ApplicationEvent event, ResolvableType eventType) {
                     for (GenericApplicationListener listener : listeners) {
                         if (listener.supportsEventType(eventType)) {
-                            listener.onApplicationEvent(event);
+                            taskExecutor.submit(() -> listener.onApplicationEvent(event));
                         }
                     }
                 }
@@ -160,7 +160,7 @@ public class EventTests6 {
         }
 
         @Override
-        public void multicastEvent(ApplicationEvent event){
+        public void multicastEvent(ApplicationEvent event) {
 
         }
 
